@@ -42,6 +42,13 @@ as_user() (
   set +x
   local COMMAND="$1"
   local WORKING_DIR="$2"
+
+  if [ "true" = "$NON_PRIVILEGED_USER" ]; then
+    set -x
+    /bin/bash -c "cd '$WORKING_DIR'; $COMMAND"
+    return "$?"
+  fi
+
   local USER="$3"
   if [ -z "$COMMAND" ]; then
     return 1;
@@ -149,6 +156,24 @@ alias_function() {
     local -r ORIG_FUNC=$(declare -f "$1")
     local -r NEWNAME_FUNC="$2${ORIG_FUNC#$1}"
     eval "$NEWNAME_FUNC"
+}
+
+before() {
+  local -r ORIG_FUNC=$(declare -f "$1")
+  local -r PREPENDED_FUNC="${ORIG_FUNC/\{/\{ $2;}"
+  eval "$PREPENDED_FUNC"
+}
+
+after() {
+  local -r ORIG_FUNC=$(declare -f "$1")
+  local -r APPENDED_FUNC="${ORIG_FUNC/%\}/$2; \}}"
+  eval "$APPENDED_FUNC"
+}
+
+replace() {
+  local -r ORIG_FUNC=$(declare -f "$1")
+  local -r REPLACED_FUNC="$1() { $2; }"
+  eval "$REPLACED_FUNC"
 }
 
 do_build() {
@@ -281,9 +306,5 @@ function do_list_functions() {
 }
 
 function do_shell() {
-  if [ "$#" -gt 0 ]; then
-    bash "$@"
-  else
-    bash
-  fi
+  bash "$@"
 }

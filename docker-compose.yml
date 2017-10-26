@@ -67,12 +67,32 @@ services:
     depends_on:
       - varnish
 
-  elasticsearch:
+  elasticsearch17:
     build:
       context: ./elasticsearch/
+      args:
+        FROM_TAG: '1.7'
+    image: quay.io/continuouspipe/elasticsearch1.7:latest
+    depends_on:
+      - external_elasticsearch17
+
+  elasticsearch24:
+    build:
+      context: ./elasticsearch/
+      args:
+        FROM_TAG: '2.4'
     image: quay.io/continuouspipe/elasticsearch2.4:latest
     depends_on:
-      - external_elasticsearch
+      - external_elasticsearch24
+
+  elasticsearch55:
+    build:
+      context: ./elasticsearch/
+      args:
+        FROM_TAG: '5.5'
+    image: quay.io/continuouspipe/elasticsearch5.5:latest
+    depends_on:
+      - external_elasticsearch55
 
   ezplatform_php70_apache:
     build:
@@ -167,6 +187,15 @@ services:
     image: quay.io/continuouspipe/memcached1.4:latest
     depends_on:
       - ubuntu
+
+  mongodb26:
+    build:
+      context: ./mongodb/
+      args:
+        FROM_TAG: '2'
+    image: quay.io/continuouspipe/mongodb2.6:latest
+    depends_on:
+      - external_mongodb26
 
   mongodb34:
     build:
@@ -515,6 +544,14 @@ services:
     depends_on:
       - php56_apache
 
+  tests:
+    build:
+      context: .
+    volumes:
+      - .:/app
+    depends_on:
+      - ubuntu
+
   tideways:
     build:
       context: ./tideways/
@@ -538,6 +575,9 @@ services:
 
   external_couchdb16:
     image: couchdb:1.6
+
+  external_mongodb26:
+    image: mongo:2
 
   external_mongodb34:
     image: mongo:3.4
@@ -563,9 +603,15 @@ services:
   external_redis_highly_available:
     image: gcr.io/google_containers/redis:v1
 
-  external_elasticsearch:
+  external_elasticsearch17:
+    image: elasticsearch:1.7
+
+  external_elasticsearch24:
     image: elasticsearch:2.4
 
+  external_elasticsearch55:
+    image: elasticsearch:5.5
+    
   external_postgres94:
     image: postgres:9.4
 

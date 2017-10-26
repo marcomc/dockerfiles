@@ -7,7 +7,7 @@ if [ "$IMAGE_VERSION" -ge 2 ]; then
   do_build() {
     do_magento_build_start_mysql
     do_magento2_build_inner
-    PRODUCTION_ENVIRONMENT="$BUILD_PRODUCTION_ENVIRONMENT" MAGENTO_MODE="$BUILD_MAGENTO_MODE" DEVELOPMENT_MODE="$BUILD_DEVELOPMENT_MODE" do_magento2_build
+    PRODUCTION_ENVIRONMENT="$BUILD_PRODUCTION_ENVIRONMENT" MAGENTO_MODE="$BUILD_MAGENTO_MODE" MAGE_MODE="$BUILD_MAGENTO_MODE" DEVELOPMENT_MODE="$BUILD_DEVELOPMENT_MODE" do_magento2_build
   }
 
   alias_function do_start do_magento2_start_inner
@@ -28,9 +28,14 @@ if [ "$IMAGE_VERSION" -ge 2 ]; then
     do_magento2_templating_inner
   }
 
+  alias_function do_composer_config do_magento_composer_config_inner
+  do_composer_config() {
+    do_magento_composer_config_inner
+    do_magento_composer_config
+  }
+
   alias_function do_composer do_magento2_composer_inner
   do_composer() {
-    do_composer_config
     do_composer_pre_install
     do_magento2_composer_inner
     do_composer_post_install
@@ -87,9 +92,5 @@ fi
 
 do_magento() (
   set +x
-  if [ "$#" -gt 0 ]; then
-    as_app_user "./bin/magento $(printf "%q " "$@")"
-  else
-    as_app_user "./bin/magento"
-  fi
+  as_app_user "$(escape_shell_args ./bin/magento "$@")"
 )

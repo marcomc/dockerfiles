@@ -4,8 +4,18 @@ if [ "$IMAGE_VERSION" -le 3 ]; then
   source /usr/local/share/magento2/magento_legacy_asset_functions.sh
 fi
 
-function do_composer_config() {
+function detect_magento_version() {
+  if has_composer_package magento/product-community-edition; then
+    composer_package_version magento/product-community-edition | cut -d. -f1,2
+  else
+    echo "2.1"
+  fi
+}
+
+function do_magento_composer_config() (
   as_code_owner "composer global config repositories.magento composer https://repo.magento.com/"
+
+  set +x
 
   if [ -n "$MAGENTO_USERNAME" ] && [ -n "$MAGENTO_PASSWORD" ]; then
     as_code_owner "composer global config http-basic.repo.magento.com '$MAGENTO_USERNAME' '$MAGENTO_PASSWORD'"
@@ -13,7 +23,7 @@ function do_composer_config() {
   if [ -n "$COMPOSER_CUSTOM_CONFIG_COMMAND" ]; then
     as_code_owner "$COMPOSER_CUSTOM_CONFIG_COMMAND"
   fi
-}
+)
 
 function do_composer_pre_install() {
   mkdir -p /app/bin
@@ -345,12 +355,11 @@ function do_magento_download_magerun2() {
   chmod +x /app/bin/n98-magerun2.phar
 }
 
-function remove_config_template() (
-  set +e
+function remove_config_template() {
   if dpkg --compare-versions "$MAGENTO_VERSION" ge 2.2; then
     rm -f /etc/confd/conf.d/magento_config.php.toml /etc/confd/templates/magento/config.php.tmpl
   fi
-)
+}
 
 function do_magento2_templating() {
   remove_config_template

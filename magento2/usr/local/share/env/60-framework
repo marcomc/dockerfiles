@@ -21,3 +21,7 @@ if [ -z "${ASSETS_PATH:-}" ] || [ -z "${ASSETS_S3_BUCKET_PATH:-}" ]; then
   export DATABASE_ARCHIVE_PATH=${DATABASE_ARCHIVE_PATH:-tools/assets/development/magentodb.sql.gz}
   export ASSET_DOWNLOAD_ENVIRONMENTS=${ASSET_DOWNLOAD_ENVIRONMENTS:-development}
 fi
+
+MAGENTO_ENTERPRISE_EDITION=$(convert_to_boolean_string "${MAGENTO_ENTERPRISE_EDITION:-$(run_return_boolean has_composer_package "magento/product-enterprise-edition")}")
+export MAGENTO_ENTERPRISE_EDITION
+export MAGENTO_VERSION="${MAGENTO_VERSION:-$(detect_magento_version)}"

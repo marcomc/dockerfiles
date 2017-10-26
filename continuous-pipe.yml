@@ -33,7 +33,7 @@ pipelines:
                 WEB_SERVER: nginx
     variables:
       - name: FROM_TAG
-        value: 'latest'
+        expression: '"latest"'
   - name: Feature Branches
     condition: '"Ready for Review" in pull_request.labels and not(code_reference.branch in ["master"])'
     tasks:
@@ -197,10 +197,24 @@ tasks:
           image: quay.io/continuouspipe/drupal8-varnish4
           tag: ${FROM_TAG}
           reuse: false
-        elasticsearch:
+        elasticsearch17:
+          image: quay.io/continuouspipe/elasticsearch1.7
+          tag: ${FROM_TAG}
+          reuse: false
+          environment:
+            FROM_TAG: '1.7'
+        elasticsearch24:
           image: quay.io/continuouspipe/elasticsearch2.4
           tag: ${FROM_TAG}
           reuse: false
+          environment:
+            FROM_TAG: '2.4'
+        elasticsearch55:
+          image: quay.io/continuouspipe/elasticsearch5.5
+          tag: ${FROM_TAG}
+          reuse: false
+          environment:
+            FROM_TAG: '5.5'
         ezplatform_php70_apache:
           image: quay.io/continuouspipe/ez6-apache-php7
           tag: ${FROM_TAG}
@@ -257,6 +271,12 @@ tasks:
           image: quay.io/continuouspipe/memcached1.4
           tag: ${FROM_TAG}
           reuse: false
+        mongodb26:
+          image: quay.io/continuouspipe/mongodb2.6
+          tag: ${FROM_TAG}
+          reuse: false
+          environment:
+            FROM_TAG: '2.6'
         mongodb34:
           image: quay.io/continuouspipe/mongodb3.4
           tag: ${FROM_TAG}
